@@ -3,14 +3,11 @@ import { useActionState } from 'react';
 import { Field, FieldDescription, FieldGroup, FieldLabel } from './ui/field';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
+import { registerPatient } from '@/services/auth/registerPatient';
 
 const RegistrationForm = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [state,formAction,isPending] = useActionState((currentState: any, formData: any)=>{
-      console.log("current state", currentState);
-      console.log("form data", formData.get("name"));
-      return {success:true}
-    }, null)
+    const [state,formAction,isPending] = useActionState( registerPatient, null)
     console.log("state", state, "isPending", isPending);
     return (
          <form action={formAction}>
