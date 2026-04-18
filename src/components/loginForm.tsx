@@ -8,6 +8,14 @@ import { Button } from './ui/button';
 const LoginForm = () => {
       const [state,formAction,isPending] = useActionState( loginUser, null)
       console.log("state", state, "isPending", isPending);
+      const getFieldError = (fieldName: string) =>{
+        if(state?.errors){
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const error = state.errors.find((err:any) => err.field === fieldName);
+          return error;
+        }
+      }
+      console.log("getFieldError", getFieldError("email"));
     return (
         <form action={formAction}>
       {/* {redirect && <input type="hidden" name="redirect" value={redirect} />} */}
@@ -23,7 +31,9 @@ const LoginForm = () => {
               placeholder="m@example.com"
               //   required
             />
-
+              {getFieldError("email") && (
+                <FieldDescription className="text-red-500">{getFieldError("email")?.message}</FieldDescription>
+              )}
             {/* <InputFieldError field="email" state={state} /> */}
           </Field>
 
@@ -37,6 +47,10 @@ const LoginForm = () => {
               placeholder="Enter your password"
               //   required
             />
+
+            {getFieldError("password") && (
+                <FieldDescription className="text-red-500">{getFieldError("password")?.message}</FieldDescription>
+              )}
             {/* <InputFieldError field="password" state={state} /> */}
           </Field>
         </div>
