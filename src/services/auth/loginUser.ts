@@ -34,9 +34,13 @@ export  const loginUser = async (currentState:any, formData:any) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(loginData),
-    }).then((res) => res.json());
+    })
+    const result = await response.json();
+    console.log("result", result);
     console.log("response", response);
-    return response;
+    const setCookiesHeader = response.headers.getSetCookie();
+    console.log("setCookiesHeader", setCookiesHeader);
+    return result;
   } catch (error) {
     console.log(error);
     return {error: "An error occurred while logging in. Please try again later.",}
