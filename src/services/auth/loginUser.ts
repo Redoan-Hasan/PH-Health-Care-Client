@@ -71,16 +71,16 @@ export const loginUser = async (currentState: any, formData: any) => {
     storeCookie.set("accessToken", accessTokenObject.accessToken,{
       httpOnly: true,
       secure: true,
-      sameSite: accessTokenObject.sameSite,
+      sameSite: accessTokenObject.sameSite || "none",
       path: accessTokenObject.path || "/",
-      maxAge: parseInt(accessTokenObject.maxAge)
+      maxAge: parseInt(refreshTokenObject["maxAge"] || "1000")
     });
     storeCookie.set("refreshToken", refreshTokenObject.refreshToken,{
       httpOnly: true,
       secure: true,
-      sameSite: refreshTokenObject.sameSite,
+      sameSite: refreshTokenObject.sameSite || "none",
       path: refreshTokenObject.path || "/",
-      maxAge: parseInt(refreshTokenObject.maxAge)
+      maxAge: parseInt(refreshTokenObject["maxAge"] || "1000")
     });
     return result;
   } catch (error) {
