@@ -44,10 +44,10 @@ export const loginUser = async (currentState: any, formData: any) => {
     console.log("result", result);
     console.log("response", response);
     const setCookieHeader = response.headers.getSetCookie();
-    console.log("setCookiesHeader", setCookieHeader);
+    console.log(setCookieHeader,"setCookiesHeader");
     if (setCookieHeader && setCookieHeader.length > 0) {
       setCookieHeader.forEach((cookie) => {
-        console.log(cookie, "cookie");
+        console.log("for each cookie",cookie);
         const parsedCookie = parse(cookie);
         console.log("parsedCookie", parsedCookie);
         if (parsedCookie.accessToken) {
