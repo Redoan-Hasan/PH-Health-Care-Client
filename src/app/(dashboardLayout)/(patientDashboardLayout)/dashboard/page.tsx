@@ -7,5 +7,5 @@ const PatientDashboardPage = () => {
         </div>
     );
 };
-
+    
 export default PatientDashboardPage;
