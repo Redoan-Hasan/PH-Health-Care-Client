@@ -5,7 +5,7 @@ import { Input } from './ui/input';
 import { loginUser } from '@/services/auth/loginUser';
 import { Button } from './ui/button';
 
-const LoginForm = () => {
+const LoginForm = ({ redirect }: { redirect?: string }) => {
       const [state,formAction,isPending] = useActionState( loginUser, null)
       console.log("state", state, "isPending", isPending);
       const getFieldError = (fieldName: string) =>{
@@ -18,7 +18,7 @@ const LoginForm = () => {
       console.log("getFieldError", getFieldError("email"));
     return (
         <form action={formAction}>
-      {/* {redirect && <input type="hidden" name="redirect" value={redirect} />} */}
+      {redirect && <input type="hidden" name="redirect" value={redirect} />}
       <FieldGroup>
         <div className="grid grid-cols-1 gap-4">
           {/* Email */}

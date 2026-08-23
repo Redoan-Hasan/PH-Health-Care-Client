@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
+import { getDefaultDashboardRoute, isValidRedirectForRole, UserRole } from "@/lib/auth-utils";
 import { parse } from "cookie";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import z from "zod";
 const loginUserZodSchema = z.object({
   email: z.email({
@@ -14,6 +17,8 @@ const loginUserZodSchema = z.object({
 
 export const loginUser = async (currentState: any, formData: any) => {
   try {
+    const redirectTo: string = formData.get("redirect");
+    console.log("redirect from server action", redirectTo);
     let accessTokenObject: null | any = null;
     let refreshTokenObject: null | any = null;
     const loginData = {
@@ -44,10 +49,10 @@ export const loginUser = async (currentState: any, formData: any) => {
     console.log("result", result);
     console.log("response", response);
     const setCookieHeader = response.headers.getSetCookie();
-    console.log(setCookieHeader,"setCookiesHeader");
+    console.log(setCookieHeader, "setCookiesHeader");
     if (setCookieHeader && setCookieHeader.length > 0) {
       setCookieHeader.forEach((cookie) => {
-        console.log("for each cookie",cookie);
+        console.log("for each cookie", cookie);
         const parsedCookie = parse(cookie);
         console.log("parsedCookie", parsedCookie);
         if (parsedCookie.accessToken) {
@@ -66,25 +71,51 @@ export const loginUser = async (currentState: any, formData: any) => {
     if (!refreshTokenObject) {
       throw new Error("Refresh token not found in cookies.");
     }
-    console.log("accessToken", accessTokenObject, "refreshToken", refreshTokenObject);
+    console.log(
+      "accessToken",
+      accessTokenObject,
+      "refreshToken",
+      refreshTokenObject,
+    );
     const storeCookie = await cookies();
-    storeCookie.set("accessToken", accessTokenObject.accessToken,{
+    storeCookie.set("accessToken", accessTokenObject.accessToken, {
       httpOnly: true,
       secure: true,
       sameSite: accessTokenObject.sameSite || "none",
       path: accessTokenObject.path || "/",
-      maxAge: parseInt(refreshTokenObject["maxAge"] || "1000")
+      maxAge: parseInt(refreshTokenObject["maxAge"] || "1000"),
     });
-    storeCookie.set("refreshToken", refreshTokenObject.refreshToken,{
+    storeCookie.set("refreshToken", refreshTokenObject.refreshToken, {
       httpOnly: true,
       secure: true,
       sameSite: refreshTokenObject.sameSite || "none",
       path: refreshTokenObject.path || "/",
-      maxAge: parseInt(refreshTokenObject["maxAge"] || "1000")
+      maxAge: parseInt(refreshTokenObject["maxAge"] || "1000"),
     });
-    return result;
-  } catch (error) {
+    const verifiedToken: JwtPayload | string = jwt.verify(
+      accessTokenObject.accessToken,
+      process.env.JWT_ACCESS_TOKEN_SECRET as string,
+    );
+    if (typeof verifiedToken === "string") {
+      throw new Error("Invalid Token");
+    };
+    const userRole: UserRole = verifiedToken.role;
+    if(redirectTo){
+      const requestedPath = redirectTo.toString();
+      if(isValidRedirectForRole(requestedPath, userRole)){
+        redirect(requestedPath);
+      }
+      else{
+        redirect(getDefaultDashboardRoute(userRole));
+      }
+    }
+    const redirectPath = redirectTo? redirectTo.toString() : getDefaultDashboardRoute(userRole);
+    redirect(redirectPath);
+  } catch (error:any) {
     console.log(error);
+    if(error?.digest?.startsWith('NEXT_REDIRECT')){
+      throw error;
+    }
     return {
       error: "An error occurred while logging in. Please try again later.",
     };
