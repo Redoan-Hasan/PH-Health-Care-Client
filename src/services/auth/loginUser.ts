@@ -1,11 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
-import { getDefaultDashboardRoute, isValidRedirectForRole, UserRole } from "@/lib/auth-utils";
+import {
+  getDefaultDashboardRoute,
+  isValidRedirectForRole,
+  UserRole,
+} from "@/lib/auth-utils";
 import { parse } from "cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import z from "zod";
+import { setCookie } from "./tokenHandlers";
 const loginUserZodSchema = z.object({
   email: z.email({
     error: "Please enter a valid email address",
@@ -71,21 +75,20 @@ export const loginUser = async (currentState: any, formData: any) => {
     if (!refreshTokenObject) {
       throw new Error("Refresh token not found in cookies.");
     }
-    console.log(
-      "accessToken",
-      accessTokenObject,
-      "refreshToken",
-      refreshTokenObject,
-    );
-    const storeCookie = await cookies();
-    storeCookie.set("accessToken", accessTokenObject.accessToken, {
+    // console.log(
+    //   "accessToken",
+    //   accessTokenObject,
+    //   "refreshToken",
+    //   refreshTokenObject,
+    // );
+    await setCookie("accessToken", accessTokenObject.accessToken, {
       httpOnly: true,
       secure: true,
       sameSite: accessTokenObject.sameSite || "none",
       path: accessTokenObject.path || "/",
       maxAge: parseInt(refreshTokenObject["maxAge"] || "1000"),
     });
-    storeCookie.set("refreshToken", refreshTokenObject.refreshToken, {
+    await setCookie("refreshToken", refreshTokenObject.refreshToken, {
       httpOnly: true,
       secure: true,
       sameSite: refreshTokenObject.sameSite || "none",
@@ -98,24 +101,25 @@ export const loginUser = async (currentState: any, formData: any) => {
     );
     if (typeof verifiedToken === "string") {
       throw new Error("Invalid Token");
-    };
+    }
     const userRole: UserRole = verifiedToken.role;
-    if(redirectTo){
+    if (redirectTo) {
       const requestedPath = redirectTo.toString();
-      if(isValidRedirectForRole(requestedPath, userRole)){
+      if (isValidRedirectForRole(requestedPath, userRole)) {
         redirect(requestedPath);
-      }
-      else{
+      } else {
         redirect(getDefaultDashboardRoute(userRole));
       }
-    }else{
+    } else {
       redirect(getDefaultDashboardRoute(userRole));
     }
-    const redirectPath = redirectTo? redirectTo.toString() : getDefaultDashboardRoute(userRole);
-    redirect(redirectPath);
-  } catch (error:any) {
+    // const redirectPath = redirectTo
+    //   ? redirectTo.toString()
+    //   : getDefaultDashboardRoute(userRole);
+    // redirect(redirectPath);
+  } catch (error: any) {
     console.log(error);
-    if(error?.digest?.startsWith('NEXT_REDIRECT')){
+    if (error?.digest?.startsWith("NEXT_REDIRECT")) {
       throw error;
     }
     return {
