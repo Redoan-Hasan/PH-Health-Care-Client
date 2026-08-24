@@ -108,6 +108,8 @@ export const loginUser = async (currentState: any, formData: any) => {
       else{
         redirect(getDefaultDashboardRoute(userRole));
       }
+    }else{
+      redirect(getDefaultDashboardRoute(userRole));
     }
     const redirectPath = redirectTo? redirectTo.toString() : getDefaultDashboardRoute(userRole);
     redirect(redirectPath);

@@ -1,6 +1,7 @@
 "use server";
 
 import z from "zod";
+import { loginUser } from "./loginUser";
 
 const registerUserZodSchema = z
   .object({
@@ -63,11 +64,17 @@ export const registerPatient = async (currentState: any, formData: any) => {
         method: "POST",
         body: newFormData,
       },
-    ).then((res) => res.json());
-    console.log("response", response);
-    return response;
-  } catch (error) {
+    );
+    const result = await response.json();
+    if(result.success){
+      await loginUser(currentState,formData);
+    }
+    return result;
+  } catch (error:any) {
     console.log("error", error);
+        if(error?.digest?.startsWith('NEXT_REDIRECT')){
+      throw error;
+    }
     return error;
   }
 };
