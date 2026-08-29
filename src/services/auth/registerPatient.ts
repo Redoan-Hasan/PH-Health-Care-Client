@@ -1,5 +1,4 @@
 "use server";
-
 import z from "zod";
 import { loginUser } from "./loginUser";
 
@@ -66,15 +65,15 @@ export const registerPatient = async (currentState: any, formData: any) => {
       },
     );
     const result = await response.json();
-    if(result.success){
-      await loginUser(currentState,formData);
+    if (result.success) {
+      await loginUser(currentState, formData);
     }
     return result;
-  } catch (error:any) {
+  } catch (error: any) {
     console.log("error", error);
-        if(error?.digest?.startsWith('NEXT_REDIRECT')){
+    if (error?.digest?.startsWith("NEXT_REDIRECT")) {
       throw error;
     }
-    return error;
+    return { success: false, message: `${process.env.NODE_ENV === 'development' ? error.message : "Registration Failed."}` }
   }
 };

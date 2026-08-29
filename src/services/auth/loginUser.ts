@@ -106,12 +106,12 @@ export const loginUser = async (currentState: any, formData: any) => {
     if (redirectTo) {
       const requestedPath = redirectTo.toString();
       if (isValidRedirectForRole(requestedPath, userRole)) {
-        redirect(requestedPath);
+        redirect(`${requestedPath}?loggedIn=true`);
       } else {
-        redirect(getDefaultDashboardRoute(userRole));
+        redirect(`${getDefaultDashboardRoute(userRole)}?loggedIn=true`);
       }
     } else {
-      redirect(getDefaultDashboardRoute(userRole));
+      redirect(`${getDefaultDashboardRoute(userRole)}?loggedIn=true`);
     }
     // const redirectPath = redirectTo
     //   ? redirectTo.toString()
@@ -123,7 +123,8 @@ export const loginUser = async (currentState: any, formData: any) => {
       throw error;
     }
     return {
-      error: "An error occurred while logging in. Please try again later.",
+      success: false,
+      message: `${process.env.NODE_ENV === "development" ? error.message : "Login Failed. You might have entered incorrect email or password."}`,
     };
   }
 };

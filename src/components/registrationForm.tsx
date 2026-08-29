@@ -1,13 +1,15 @@
 "use client";
-import { useActionState } from 'react';
+import { useActionState, useEffect } from 'react';
 import { Field, FieldDescription, FieldGroup, FieldLabel } from './ui/field';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { registerPatient } from '@/services/auth/registerPatient';
+import { toast } from 'sonner';
 
 const RegistrationForm = () => {
     const [state,formAction,isPending] = useActionState( registerPatient, null)
-    console.log("state", state, "isPending", isPending);
+    // console.log("state", state, "isPending", isPending);
+    console.log("state", state);
     const getFieldError = (fieldName: string) =>{
         if(state?.errors){
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -15,6 +17,11 @@ const RegistrationForm = () => {
           return error;
         }
       }
+      useEffect(()=>{
+        if(state && !state.success){
+          toast.error(state.message)
+        }
+      },[state])
     return (
          <form action={formAction}>
       <FieldGroup>
