@@ -7,19 +7,21 @@ import { ScrollArea } from 'radix-ui/scroll-area';
 import { Badge } from '../../badge';
 import { Separator } from '../../separator';
 import { Bell } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 
 interface DashboardSidebarContentProps {
-    userInfo: UserInfo;
-    navItems: NavSection[];
-    dashboardHome: string;
+  userInfo: UserInfo;
+  navItems: NavSection[];
+  dashboardHome: string;
 }
 const DashboardSidebarContent = ({
-    userInfo,
-    navItems,
-    dashboardHome
+  userInfo,
+  navItems,
+  dashboardHome
 }: DashboardSidebarContentProps) => {
-    return (
-        <div className="hidden md:flex h-full w-64 flex-col border-r bg-card">
+  const pathname = usePathname();
+  return (
+    <div className="hidden md:flex h-full w-64 flex-col border-r bg-card">
       {/* Logo/Brand */}
       <div className="flex h-16 items-center border-b px-6">
         <Link href={dashboardHome} className="flex items-center space-x-2">
@@ -39,10 +41,9 @@ const DashboardSidebarContent = ({
               )}
               <div className="space-y-1">
                 {section.items.map((item) => {
-                //   const isActive = pathname === item.href;
-                //   const Icon = getIconComponent(item.icon);
-                const isActive = false; // Placeholder for active state logic
-                const Icon = () => <span className="h-4 w-4 bg-gray-400 rounded-full"></span>; // Placeholder for icon component
+                  const isActive = pathname === item.href;
+                  //   const Icon = getIconComponent(item.icon);
+                  const Icon = () => <span className="h-4 w-4 bg-gray-400 rounded-full"></span>; // Placeholder for icon component
                   return (
                     <Link
                       key={item.href}
@@ -94,7 +95,7 @@ const DashboardSidebarContent = ({
         </div>
       </div>
     </div>
-    );
+  );
 };
 
 export default DashboardSidebarContent;
